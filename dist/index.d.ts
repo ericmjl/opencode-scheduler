@@ -13,4 +13,5 @@
  */
 import type { Plugin } from "@opencode-ai/plugin";
 export declare const SchedulerPlugin: Plugin;
-export default SchedulerPlugin;
+declare const SchedulerPluginDual: any;
+export default SchedulerPluginDual;

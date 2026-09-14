@@ -3311,5 +3311,55 @@ Commands:
   }
 }
 
-// Default export for OpenCode plugin system
-export default SchedulerPlugin
+// --- OpenCode 2 (V2) support -------------------------------------------------
+// V2 loads plugins that default-export an object with `id` + `setup()`, and
+// ignores `server()`. V1 (>=1.18.29) loads the same object but calls
+// `server()` instead. Shipping both from one entrypoint keeps a single
+// package working across both hosts.
+import { z } from "zod"
+
+function argsToJsonSchema(args: any): any {
+  try {
+    // `args` is a zod ZodRawShape (tool.schema === z); zod 4 can emit JSON Schema.
+    return z.toJSONSchema(z.object(args ?? {}))
+  } catch {
+    return { type: "object", properties: {}, additionalProperties: true }
+  }
+}
+
+const SchedulerPluginV2 = {
+  id: "opencode-scheduler",
+  setup: async (ctx: any) => {
+    const v1Tools: Record<string, any> = await SchedulerPlugin({} as any)
+    await ctx.tool.transform((editor: any) => {
+      for (const [name, def] of Object.entries(v1Tools)) {
+        editor.add({
+          name,
+          description: def.description,
+          input: argsToJsonSchema(def.args),
+          execute: async (input: any, toolCtx: any) => {
+            const result = await def.execute(input ?? {}, toolCtx)
+            if (typeof result === "string") {
+              return { content: result }
+            }
+            // Structured V1 result: { title?, output, metadata?, attachments? }
+            if (toolCtx && typeof toolCtx.metadata === "function" && result.metadata) {
+              try {
+                toolCtx.metadata({ title: result.title, metadata: result.metadata })
+              } catch {}
+            }
+            return { content: result.output ?? "" }
+          },
+        })
+      }
+    })
+  },
+}
+
+const SchedulerPluginDual: any = {
+  ...SchedulerPluginV2,
+  server: async () => SchedulerPlugin({} as any),
+}
+
+// Default export for OpenCode plugin system (V1 via server(), V2 via setup())
+export default SchedulerPluginDual

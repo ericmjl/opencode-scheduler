@@ -14966,7 +14966,45 @@ ${logs}`, { job, logPath, logs });
     }
   };
 };
-var src_default = SchedulerPlugin;
+function argsToJsonSchema(args) {
+  try {
+    return exports_external.toJSONSchema(exports_external.object(args ?? {}));
+  } catch {
+    return { type: "object", properties: {}, additionalProperties: true };
+  }
+}
+var SchedulerPluginV2 = {
+  id: "opencode-scheduler",
+  setup: async (ctx) => {
+    const v1Tools = await SchedulerPlugin({});
+    await ctx.tool.transform((editor) => {
+      for (const [name, def] of Object.entries(v1Tools)) {
+        editor.add({
+          name,
+          description: def.description,
+          input: argsToJsonSchema(def.args),
+          execute: async (input, toolCtx) => {
+            const result = await def.execute(input ?? {}, toolCtx);
+            if (typeof result === "string") {
+              return { content: result };
+            }
+            if (toolCtx && typeof toolCtx.metadata === "function" && result.metadata) {
+              try {
+                toolCtx.metadata({ title: result.title, metadata: result.metadata });
+              } catch {}
+            }
+            return { content: result.output ?? "" };
+          }
+        });
+      }
+    });
+  }
+};
+var SchedulerPluginDual = {
+  ...SchedulerPluginV2,
+  server: async () => SchedulerPlugin({})
+};
+var src_default = SchedulerPluginDual;
 export {
   src_default as default,
   SchedulerPlugin
