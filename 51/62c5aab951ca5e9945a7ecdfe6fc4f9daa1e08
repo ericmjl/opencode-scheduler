@@ -1,0 +1,16 @@
+index.js
+  h_923f9eef54c2c1 1-3
+package.json
+  h_923f9eef54c2c1 3
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5162c5aab951ca5e9945a7ecdfe6fc4f9daa1e08",
+  "prompts": {},
+  "humans": {
+    "h_923f9eef54c2c1": {
+      "author": "Eric Ma <ericmajinglong@gmail.com>"
+    }
+  }
+}
