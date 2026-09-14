@@ -1,0 +1,20 @@
+dist/index.d.ts
+  h_923f9eef54c2c1 16-17
+dist/index.js
+  h_923f9eef54c2c1 14969-15007
+package.json
+  h_923f9eef54c2c1 3,47-48
+src/index.ts
+  h_923f9eef54c2c1 3314-3365
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.7.4",
+  "base_commit_sha": "5cc31c48697ab07c7d1304018372f67da06744c7",
+  "prompts": {},
+  "humans": {
+    "h_923f9eef54c2c1": {
+      "author": "Eric Ma <ericmajinglong@gmail.com>"
+    }
+  }
+}
